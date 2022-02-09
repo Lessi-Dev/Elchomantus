@@ -25,12 +25,34 @@ const userSchema = new mongooose.Schema({
     min:78,
     max:78,
   },
+  matches:{
+    type: Array,
+    default: []
+  },
   lastMatchTracked: {
     type: String,
-  },
-  error: {
-    type: String,
-  },
+  }
+})
+
+userSchema.function('newRequest', function(){
+  axios.get(`https://${config.server}.api.riotgames.com/lol/match/v5/matches/by-puuid/${this.puuid}/ids?start=0&count=100?api_key=${config.token}`)
+  .then(res => {
+    JSON.parse(res.data.body).forEach(match => {
+      for (let i = this.matches.length; i > 0; i--) {
+        if(this.matches[i] === match) {
+          return;
+        } else {
+          this.matches.push(match)
+        }
+        if(i == 0) {
+          this.lastMatchTracked = match;
+        }
+      }
+    });
+  })
+  .catch(error => {
+    console.error(error)
+  })
 })
 
 userSchema.pre('save', function(next) {
@@ -41,8 +63,7 @@ userSchema.pre('save', function(next) {
     next();
   })
   .catch(error => {
-    console.log("Something not correct with the inputs")
-    this.error = error;
+    console.error(error)
   })
 });
 
@@ -57,29 +78,24 @@ app.get('/setToken/:token', (req, res) => {
   });
 })
 
-
-app.get('/createTrackedUser/:name/:tag',async (req, res) => {
-  if (req.params.name != undefined && req.params.tag != undefined) {
-  const usr = await User.findOne({name: req.params.name, tag: req.params.tag}, (err, user) => {
-    if (err) {
-      console.log("Error:"+err);
-      return    }
-    res.send(user);
-  }).catch(err => {console.log(err)})
-  if(usr != null) {
-    console.log("User not found")
+app.get('/createUser/:name/:tag', (req, res) => {
     User.create({name: req.params.name, tag: req.params.tag}, (err, user) => {
-      if (err){
-        res.send(err);
-        return  
-      } 
+      if (err) return console.log(err);
       res.send(user.name);
     });
-  }
-  } else {
-    res.send('Missing parameters');
-  }
 });
+
+function UpdateUser() {
+  User.find({}, (err, users) => {
+    if (err) return console.log(err);
+    users.forEach(user => {
+      user.newRequest();
+      user.save();
+    });
+  });
+}
+
+setTimeout(UpdateUser, 2000);
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
