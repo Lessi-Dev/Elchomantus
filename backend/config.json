@@ -1,5 +1,5 @@
 {
-"token":"RGAPI-e8221727-7595-4156-a0a4-5ee00f2d4618",
+"token":"YOUR_API_KEY",
 "server":"europe",
 "gamemodes":["CLASSIC","ARAM","TUTORIAL"],
 "howMany":100
