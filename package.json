@@ -6,7 +6,9 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
-    "test": "node backend/app.js"
+    "test": "node backend/app.js",
+    "devrun": "concurrently --kill-others \"npm run dev\" \"npm run test\""
+
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",

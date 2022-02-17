@@ -12,6 +12,9 @@ mongooose.connect('mongodb://localhost:27017/lol-tracker')
 const userSchema = new mongooose.Schema({
   name: {
     type: String,
+  },
+  username: {
+    type: String,
     required: true,
   },
   tag: {
@@ -31,33 +34,38 @@ const userSchema = new mongooose.Schema({
   },
   lastMatchTracked: {
     type: String,
+    default: "187",
   }
 })
 
-userSchema.function('newRequest', function(){
-  axios.get(`https://${config.server}.api.riotgames.com/lol/match/v5/matches/by-puuid/${this.puuid}/ids?start=0&count=100?api_key=${config.token}`)
-  .then(res => {
-    JSON.parse(res.data.body).forEach(match => {
-      for (let i = this.matches.length; i > 0; i--) {
-        if(this.matches[i] === match) {
-          return;
-        } else {
-          this.matches.push(match)
-        }
-        if(i == 0) {
-          this.lastMatchTracked = match;
-        }
-      }
-    });
+userSchema.methods.newRequest = async function(user){
+  axios.get(`https://${config.server}.api.riotgames.com/lol/match/v5/matches/by-puuid/${this.puuid}/ids?start=0&count=${config.howMany}&api_key=${config.token}`)
+  .then(function(res) {
+    if(this.lastMatchTracked === res.data[0]) {
+      console.log("No new matches at User: " + this.name);
+      return;
+    }
+    for(let i = 0; i < res.data.length; i++){
+      delay();
+      GetMatch(res.data[i]).then(async (response) => {
+        console.log(i+":"+response.data.info.gameDuration);
+        await user.matches.push(response.data);
+        await user.save();
+        delay();
+      }).catch(err => {})
+    }
   })
   .catch(error => {
     console.error(error)
   })
-})
+}
 
 userSchema.pre('save', function(next) {
+  if(this.name === undefined) {
+    this.name = this.username;
+  }
   this.puuid = axios
-  .get(`https://${config.server}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${this.name}/${this.tag}?api_key=${config.token}`)
+  .get(`https://${config.server}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${this.username}/${this.tag}?api_key=${config.token}`)
   .then(res => {
     this.puuid = res.data.puuid;
     next();
@@ -65,6 +73,7 @@ userSchema.pre('save', function(next) {
   .catch(error => {
     console.error(error)
   })
+  this.newRequest();
 });
 
 const User = mongooose.model('User', userSchema,"Users");
@@ -78,40 +87,45 @@ app.get('/setToken/:token', (req, res) => {
   });
 })
 
-app.get('/createTrackedUser/:name/:tag',async (req, res) => {
-  if (req.params.name != undefined && req.params.tag != undefined) {
-  const usr = await User.findOne({name: req.params.name, tag: req.params.tag}, (err, user) => {
-    if (err) {
-      console.log("Error:"+err);
-      return    }
-    res.send(user);
-  }).catch(err => {console.log(err)})
-  if(usr != null) {
-    console.log("User not found")
-    User.create({name: req.params.name, tag: req.params.tag}, (err, user) => {
-      if (err){
-        res.send(err);
-        return  
-      } 
-      res.send(user.name);
-    });
-  }
-  } else {
-    res.send('Missing parameters');
-  }
+app.get('/createUser/:username/:tag', (req, res) => {
+  User.create({username: req.params.username, tag: req.params.tag}, (err, user) => {
+    if (err) return res.status(500).send(err);
+    res.send(user.username);
+  });
+});
+
+app.get('/update', (req, res) => {
+  UpdateUser();
+  res.send('Updated');
 });
 
 function UpdateUser() {
   User.find({}, (err, users) => {
     if (err) return console.log(err);
-    users.forEach(user => {
-      user.newRequest();
-      user.save();
-    });
+    try{
+      users.forEach(user => {
+        console.log(user.username);
+        if(user != undefined) {
+          user.newRequest(user);
+        }
+      });
+    } catch(err) {
+    console.log(err);
+    }
   });
 }
 
-setTimeout(UpdateUser, 2000);
+async function GetMatch(matchId) {
+try{
+  return await axios.get(`https://${config.server}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${config.token}`);
+} catch(err) {
+  console.log(err);
+}
+};
+
+const delay = (ms = 1000) => new Promise((r) => setTimeout(r, ms));
+
+setInterval(UpdateUser, 3600000);
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');

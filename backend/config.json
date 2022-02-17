@@ -1,4 +1,6 @@
 {
-"token":"RGAPI-20733c2d-03d3-4dff-a3b0-b60082a3822b",
-"server":"europe"
+"token":"RGAPI-e8221727-7595-4156-a0a4-5ee00f2d4618",
+"server":"europe",
+"gamemodes":["CLASSIC","ARAM","TUTORIAL"],
+"howMany":100
 }
