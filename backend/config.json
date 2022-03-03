@@ -1,6 +1,0 @@
-{
-"token":"YOUR_API_KEY",
-"server":"europe",
-"gamemodes":["CLASSIC","ARAM","TUTORIAL"],
-"howMany":100
-}

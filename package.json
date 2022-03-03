@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "start": "sirv public --no-clear",
-    "test": "node backend/app.js",
-    "devrun": "concurrently --kill-others \"npm run dev\" \"npm run test\""
-
+    "dev": "node src/app.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -22,11 +17,12 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
-    "axios": "^0.25.0",
     "bulma-extensions": "^6.2.7",
     "d3": "^7.3.0",
     "express": "^4.17.2",
     "mongoose": "^6.2.0",
-    "sirv-cli": "^2.0.0"
+    "sirv-cli": "^2.0.0",
+    "socket.io": "^4.4.1",
+    "xmlhttprequest": "^1.8.0"
   }
 }

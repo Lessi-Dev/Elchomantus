@@ -1,18 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset='utf-8'>
-	<meta name='viewport' content='width=device-width,initial-scale=1'>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elchomantus | Home</title>
+    <link rel="icon" href="img/Moose.ico">
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      @media screen and (max-width: 1024px) {
+        .navbar {
+          margin-bottom: 5%;
+        }
+        
+      }
+      div.scrollMenu {
+        background-color: #333;
+        overflow: scroll;
+        white-space: nowrap;
+      }
+      div.scrollMenu::-webkit-scrollbar-track {
+        padding: 2px 0;
+        background-color: #333;
+      }
 
-	<title>Svelte app</title>
+      div.scrollMenu::-webkit-scrollbar {
+        width: 10px;
+      }
 
-	<link rel='icon' type='image/png' href='/favicon.png'>
-	<link rel='stylesheet' href='/global.css'>
-	<link rel='stylesheet' href='/build/bundle.css'>
+      div.scrollMenu::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #737272;
+      }
 
-	<script defer src='/build/bundle.js'></script>
+      div.scrollItem {
+        display: inline-block;
+        color: white;
+        text-align: center;
+        padding: 14px;
+        text-decoration: none;
+      }
+
+      div.scrollmenu a:hover {
+        background-color: #777;
+      }
+      a > span > i {
+          color: #00d1b2;
+      }
+      #flexNav {
+          display: flex;
+      }
+      #flexNav > div.navbar-start > div > div{
+        border-top:2px solid #333;
+      }
+    </style>
 </head>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+<script src="https://kit.fontawesome.com/33a496fb54.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <body>
+    <section>
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+          <div id="flexNav" class="navbar-menu">
+            <div class="navbar-start">
+              <a class="navbar-item" href="/">
+                Home
+              </a>
+        
+              <a class="navbar-item" href="/settings">
+                Settings
+              </a>
+        
+              <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                  Track Management
+                </a>
+        
+                <div class="navbar-dropdown">
+                  <a class="navbar-item" href="/add">
+                    Add
+                  </a>
+                  <a class="navbar-item" href="/remove">
+                    Remove
+                  </a>
+                  <a class="navbar-item" href="/groups">
+                    Groups
+                  </a>
+                </div>
+              </div>
+            </div>
+              <div class="navbar-end">
+                
+              </div>
+            </div>
+        </nav>
+    </section>
+    <section>
+        <div class="columns scrollMenu">
+            
+          </div>
+    </section>
+    <script>
+      const week = {1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday"}
+        const ColumnHost = document.getElementsByClassName('columns')[0];
+        function getIcon (favourite){
+            if (favourite){
+                return "fas fa-fire-alt";
+            }
+            return "fas fa-burn";
+        }
+        function changeIcon (icon){
+          if(icon.classList.contains("fa-burn")){
+            icon.classList.remove("fa-burn");
+            icon.classList.add("fa-fire-alt");
+          }
+          else{
+            icon.classList.remove("fa-fire-alt");
+            icon.classList.add("fa-burn");
+          }
+        }
+        function AddUserCard (name,tag,region,favourite,data) {
+            ColumnHost.innerHTML += (`
+            <div class="column is-one-fifth scrollItem" style="display:block;">
+                <div class="box">
+                    <article class="media">
+                      <div class="media-content">
+                        <div class="content">
+                          <p>
+                            <strong>${name}</strong> 
+                            <small>#${tag}</small>
+                            <span class="icon is-small">
+                                <i class="fas fa-globe-${region}"></i>
+                            </span>
+                            <br>
+                            <div id="${name}${tag}Chart">
+                            </div>
+                          </p>
+                        </div>
+                        <nav class="level is-mobile">
+                          <div class="level-left">
+                            <a class="level-item" aria-label="settings">
+                              <span class="icon is-small">
+                                <i class="fas fa-bars"></i>
+                              </span>
+                            </a>
+                            <a class="level-item" aria-label="favorite">
+                              <span class="icon is-small">
+                                <i class="${getIcon(favourite)}" onclick="changeIcon(this)"></i>
+                              </span>
+                            </a>
+                          </div>
+                        </nav>
+                      </div>
+                    </article>
+                </div>
+            </div>
+            `);
+          const chart = d3.select(`#${name}${tag}Chart`).append('svg')
+            .attr('width', '100%')
+            .attr('height', '160')
+          chart.selectAll('rect')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('x', (d, i) => i * 11)
+            .attr('y', (d, i) => 100 - d)
+            .attr('width', 10)
+            .attr('height', (d, i) => d)
+            .attr('fill', '#00d1b2')
+          chart.selectAll('text.title')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('x', (d, i) => i * 11 + 5)
+            .attr('y', (d, i) => 101)
+            .attr('font-size', '10px')
+            .attr('writing-mode', 'vertical-rl')
+            .attr('text.orientation', 'upright')
+            .text((d, i) => week[i+1])
+          chart.selectAll('text.value')
+            .data(data)
+            .enter()
+            .append('text')
+            .text(d => d)
+            .attr('x', (d, i) => i * 11 + 5)
+            .attr('y', (d, i) => 100 - d)
+            .attr('font-size', '10px')
+            .attr('text-anchor', 'middle')
+        }
+        const allUser = new XMLHttpRequest();
+        allUser.open('GET', `${window.location}all`);
+        allUser.onreadystatechange = function () {
+          if (allUser.status == 200 & allUser.readyState == 4) {
+            const data = JSON.parse(allUser.responseText);
+            if (data.length == 0) {
+              document.getElementsByClassName('columns')[0].innerHTML = `
+              <div class="column is-one-half">
+                <div class="box" style="margin:5px;">
+                    <article class="media">
+                      <div class="media-content">
+                        <div class="content">
+                          <p>
+                            <strong>No users found</strong>
+                            <br>
+                            Add One under Track Management > Add
+                          </p>
+                        </div>
+                      </div>
+                    </article>
+                </div>`;
+            }
+            for (let i = 0; i < data.length; i++) {
+                const AverageWeekHours = {
+                  0: 0,
+                  1: 0,
+                  2: 0,
+                  3: 0,
+                  4: 0,
+                  5: 0,
+                  6: 0
+                }
+                const AverageWeekHoursUsed = {
+                  0: 0,
+                  1: 0,
+                  2: 0,
+                  3: 0,
+                  4: 0,
+                  5: 0,
+                  6: 0
+                }
+                data[i].matches.forEach(match => {
+                  if(match.info.gameCreation){
+                    const weekday = new Date(match.info.gameCreation).getDay();
+                    console.log(weekday);
+                    AverageWeekHours[weekday] += match.info.gameDuration;
+                    AverageWeekHoursUsed[weekday] += 1;
+                  }
+                });
+                const Data = [];
+                for (let i = 0; i < 7; i++) {
+                  Data.push(Math.round(AverageWeekHours[i] / AverageWeekHoursUsed[i]));
+                }
+                console.log(Data);
+                AddUserCard(data[i].name,data[i].tag,data[i].region,data[i].favourite,Data);
+            }
+        }
+        }
+        allUser.send();
+
+    </script>
 </body>
 </html>
