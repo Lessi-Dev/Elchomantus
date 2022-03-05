@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elchomantus | Home</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/Lessi-Dev/Elchomantus/master/public/img/Moose.ico">
+    <link rel="icon" href="https://raw.githubusercontent.com/Lessi-Dev/Elchomantus/master/public/img/Moose-transparent.png">
     <style>
       * {
         box-sizing: border-box;
@@ -15,6 +15,9 @@
           margin-bottom: 5%;
         }
         
+      }
+      p {
+        display: inline-block;
       }
       div.scrollMenu {
         background-color: #333;
@@ -90,6 +93,23 @@
                   </a>
                 </div>
               </div>
+              <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                  Visualizations
+                </a>
+        
+                <div class="navbar-dropdown">
+                  <a class="navbar-item" href="/time">
+                    Time
+                  </a>
+                  <a class="navbar-item" href="/Matches">
+                    Matches
+                  </a>
+                  <a class="navbar-item" href="/Data">
+                    Data
+                  </a>
+                </div>
+              </div>
             </div>
               <div class="navbar-end">
                 
@@ -121,9 +141,18 @@
             icon.classList.add("fa-burn");
           }
         }
+        function largestNumberofArray (array){
+            let largest = 0;
+            for (let i = 0; i < array.length; i++){
+                if (array[i] > largest){
+                    largest = array[i];
+                }
+            }
+            return largest;
+        }
         function AddUserCard (name,tag,region,favourite,data) {
             ColumnHost.innerHTML += (`
-            <div class="column is-one-fifth scrollItem" style="display:block;">
+            <div class="column is-narrow scrollItem" style="display:block;">
                 <div class="box">
                     <article class="media">
                       <div class="media-content">
@@ -135,7 +164,7 @@
                                 <i class="fas fa-globe-${region}"></i>
                             </span>
                             <br>
-                            <div id="${name}${tag}Chart">
+                            <div id="${name}${tag}Chart" style="width:100px;">
                             </div>
                           </p>
                         </div>
@@ -180,15 +209,6 @@
             .attr('writing-mode', 'vertical-rl')
             .attr('text.orientation', 'upright')
             .text((d, i) => week[i+1])
-          chart.selectAll('text.value')
-            .data(data)
-            .enter()
-            .append('text')
-            .text(d => d)
-            .attr('x', (d, i) => i * 11 + 5)
-            .attr('y', (d, i) => 100 - d)
-            .attr('font-size', '10px')
-            .attr('text-anchor', 'middle')
         }
         const allUser = new XMLHttpRequest();
         allUser.open('GET', `${window.location}all`);
@@ -243,8 +263,11 @@
                 for (let i = 0; i < 7; i++) {
                   Data.push(Math.round(AverageWeekHours[i] / AverageWeekHoursUsed[i]));
                 }
-                console.log(Data);
-                AddUserCard(data[i].name,data[i].tag,data[i].region,data[i].favourite,Data);
+                const NormalizedData = [];
+                for (let i = 0; i < 7; i++) {
+                  NormalizedData.push(Math.round(Data[i] / largestNumberofArray(Data) * 100));
+                }
+                AddUserCard(data[i].name,data[i].tag,data[i].region,data[i].favourite,NormalizedData);
             }
         }
         }

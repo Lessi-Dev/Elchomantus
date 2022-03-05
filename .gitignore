@@ -2,6 +2,7 @@
 /public/build/
 
 .DS_Store
+data
 
 package-lock.json
 backend/config.json

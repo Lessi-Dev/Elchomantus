@@ -1,8 +1,9 @@
 {
-"token":"RGAPI-5c1dfba3-7aff-492a-b84f-b1597f97de2b",
+"token":"RGAPI-caaecca7-6c34-4850-a07e-89f3072b11bf",
 "defaultServer":"europe",
 "servers":["europe","americas","asia"],
 "gamemodes":["CLASSIC"],
 "howMany":100,
+"delayHandler":"auto",
 "delay":1500
 }

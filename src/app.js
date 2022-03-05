@@ -14,7 +14,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 });
 
-mongooose.connect('mongodb://localhost:27017/Elchomantus', { useNewUrlParser: true });
+mongooose.connect('mongodb://mongo/Elchomantus', { useNewUrlParser: true });
 
 const userSchema = new mongooose.Schema({
   name: {
@@ -147,6 +147,42 @@ app.get('/setToken/:token', (req, res) => {
     res.send('Token set');
   });
 })
+
+app.get('/setDefaultServer/:server', (req, res) => {
+  config.defaultServer = req.params.server;
+  fs.writeFile("src/config.json", JSON.stringify(config), function writeJSON(err) {
+    if (err) return console.log(err);
+    console.log(JSON.stringify(config));
+    res.send('Server set');
+  });
+});
+
+app.get('/setHowMany/:howMany', (req, res) => {
+  config.howMany = req.params.howMany;
+  fs.writeFile("src/config.json", JSON.stringify(config), function writeJSON(err) {
+    if (err) return console.log(err);
+    console.log(JSON.stringify(config));
+    res.send('HowMany set');
+  });
+});
+
+app.get('/setHowLong/:howLong', (req, res) => {
+  if(req.params.howLong == "auto") {
+    const AllUsers = User.find({}, (err, users) => {}).clone();
+    config.howLong = Math.round(90/AllUsers.length);
+    return res.status(201).send('HowLong set');
+  }
+  config.howLong = req.params.howLong;
+  fs.writeFile("src/config.json", JSON.stringify(config), function writeJSON(err) {
+    if (err) return console.log(err);
+    console.log(JSON.stringify(config));
+    res.send('HowLong set');
+  });
+});
+
+app.get('/ActiveSettings', (req, res) => {
+  res.send(config);
+});
 
 app.get('/createUser/:username/:tag', async (req, res) => {
   const AllUsers = await User.find({});

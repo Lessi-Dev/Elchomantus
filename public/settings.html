@@ -5,106 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elchomantus | Settings</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/Lessi-Dev/Elchomantus/master/public/img/Moose-transparent.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
     <script src="https://kit.fontawesome.com/33a496fb54.js" crossorigin="anonymous"></script>
     <style>
     #flexNav {
         display: flex;
     }
-    .centeredContent {
-    z-index: 1;
-    position: absolute;
-    text-align: center;
-    display: inline;
-    justify-content: center;
-    margin: 0 auto;
-    -webkit-user-select: none; /* Safari */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
+    #entered {
+      text-align: center;
     }
-
-    .switch {
-    position: relative;
-    display: inline-block;
-    width: 230px;
-    height: 34px;
-    height: 35px;
-    font-family: "Futura Lt BT", sans-serif;
-    }
-
-    /* Hide default HTML checkbox */
-    .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    }
-
-    /* The slider */
-    .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-    }
-
-    .slider:before {
-    position: absolute;
-    content: "";
-    height: 100%;
-    width: 50%;
-    left: 0;
-    background-color: #00d1b2;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-    }
-
-    input:checked ~ .switchTextLeft {
-    color: #00d1b2;
-    }
-
-    input:checked ~ .switchTextRight {
-    color: white;
-    }
-
-    input:checked + .slider:before {
-    -webkit-transform: translateX(100%);
-    -ms-transform: translateX(100%);
-    transform: translateX(100%);
-    }
-
-    /* Rounded sliders */
-    .slider.round {
-    border-radius: 5px 5px;
-    }
-
-    .slider.round:before {
-    border-radius: 5px 5px;
-    }
-
-    .switchTextLeft,
-    .switchTextRight {
-    z-index: 5;
-    transition: 500ms;
-    position: absolute;
-    }
-
-    .switchTextLeft {
-    transform: translate(-75px, 7.5px);
-    color: white;
-    }
-
-    .switchTextRight {
-    transform: translate(40px, 7.5px);
-    color: #00d1b2;
-    }
-
     </style>
 </head>
 <body>
@@ -137,12 +47,138 @@
                     </a>
                   </div>
                 </div>
+                <div class="navbar-item has-dropdown is-hoverable">
+                  <a class="navbar-link">
+                    Visualizations
+                  </a>
+          
+                  <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/time">
+                      Time
+                    </a>
+                    <a class="navbar-item" href="/Matches">
+                      Matches
+                    </a>
+                    <a class="navbar-item" href="/Data">
+                      Data
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
         </nav>
     </section>
     <section>
-        
+        <div class="columns">
+          <div class="column is-one-fifth" style="margin-left: 10px;">
+            <div class="content is-medium">
+              <h6>Default Server</h6>
+            </div>
+          </div>
+          <div class="column is-one-fifth">
+            <div class="select">
+              <select>
+                <option>europe</option>
+                <option>americas</option>
+                <option>asia</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-one-fifth" style="margin-left: 10px;">
+            <div class="content is-medium">
+              <h6>Change Token</h6>
+            </div>
+          </div>
+          <div class="column is-one-fifth">
+            <input class="input" type="text" placeholder="Token found on the Riot developer Portal">
+          </div>
+          <div class="column is-one-fifth">
+            <button class="button">Send</button>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-one-fifth" style="margin-left: 10px;">
+            <div class="content is-medium">
+              <h6>How many matches to look in the past</h6>
+            </div>
+          </div>
+          <div class="column is-one-fifth">
+            <input class="input" type="text" placeholder="0 - 100">
+          </div>
+          <div class="column is-one-fifth">
+            <button class="button">Send</button>
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-one-fifth" style="margin-left: 10px;">
+            <div class="content is-medium">
+              <h6>Time between Requests</h6>
+            </div>
+          </div>
+          <div class="column is-one-fifth">
+            <div class="select">
+              <select id="TimeSelect">
+                <option selected>auto</option>
+                <option>manually</option>
+              </select>
+            </div>
+          </div>
+          <div id="TimeInput" class="column is-1" style="display: none;">
+            <div>
+              <input class="input" type="text" placeholder="Time in ms">
+            </div>
+            <div style="margin-top: 5px;">
+              <button id="TimeButton" class="button">Change</button>
+            </div>
+          </div>
+        </div>
     </section>
+    <script>
+    const select = document.getElementById('TimeSelect');
+    const TimeButton = document.getElementById('TimeButton');
+    const input = document.getElementById('TimeInput');
+    select.addEventListener('change', () => {
+      console.log(select.value);
+      if (select.value == 'manually') {
+        input.style.display = 'inline-block';
+      } else {
+        input.style.display = 'none';
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/setHowLong/' + input.value);
+      }
+    });
+    document.getElementsByTagName('select')[0].addEventListener('change', () => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/setDefaultServer/' + document.getElementsByTagName('select')[0].value);
+      xhr.send();
+    });
+    TimeButton.addEventListener('click', () => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/setHowLong/' + input.value);
+      xhr.send();
+    });
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/ActiveSettings');
+    xhr.onload = () => {
+      const response = JSON.parse(xhr.responseText);
+      console.log(response);
+      if (response.delayHandler == 'auto') {
+        select.value = 'auto';
+      } else {
+        select.value = 'manually';
+        input.value = response.delay;
+        input.style.display = 'inline-block';
+      }
+      if (response.defaultServer == 'europe') {
+        document.getElementsByTagName('select')[0].value = 'europe';
+      } else if (response.defaultServer == 'americas') {
+        document.getElementsByTagName('select')[0].value = 'americas';
+      } else if(response.defaultServer == 'asia') {
+        document.getElementsByTagName('select')[0].value = 'asia';
+      }
+    };
+    </script>
 </body>
 </html>
